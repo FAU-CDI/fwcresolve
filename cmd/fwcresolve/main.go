@@ -5,16 +5,22 @@ import (
 	"log"
 	"net/http"
 
-	resolveproxy "github.com/tkw1536/resolve-proxy"
+	"github.com/tkw1536/fwcresolve"
+	"github.com/tkw1536/fwcresolve/resolvers"
 )
 
 func main() {
-	p := resolveproxy.Proxy(map[string]string{
-		"^https://(.*)\\.wisski\\.agfd\\.fau\\.de/": "https://$1.wisski.data.fau.de",
-		"^https://(.*)\\.wisski\\.data\\.fau\\.de/": "https://$1.wisski.data.fau.de",
-		"^http://(.*)\\.wisski\\.agfd\\.fau\\.de/": "https://$1.wisski.data.fau.de",
-		"^http://(.*)\\.wisski\\.data\\.fau\\.de/": "https://$1.wisski.data.fau.de",
-	})
+	r := &resolvers.Regexp{
+		Data: map[string]string{
+			"^https://(.*)\\.wisski\\.agfd\\.fau\\.de/": "https://$1.wisski.data.fau.de",
+			"^https://(.*)\\.wisski\\.data\\.fau\\.de/": "https://$1.wisski.data.fau.de",
+			"^http://(.*)\\.wisski\\.agfd\\.fau\\.de/":  "https://$1.wisski.data.fau.de",
+			"^http://(.*)\\.wisski\\.data\\.fau\\.de/":  "https://$1.wisski.data.fau.de",
+		},
+	}
+	p := fwcresolve.ResolveHandler{
+		Resolver: r,
+	}
 	log.Printf("Listening on %s", listenAddress)
 	log.Fatal(http.ListenAndServe(listenAddress, p))
 }

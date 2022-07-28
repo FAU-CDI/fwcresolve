@@ -1,3 +1,3 @@
-module github.com/tkw1536/resolve-proxy
+module github.com/tkw1536/fwcresolve
 
 go 1.18
