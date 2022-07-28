@@ -33,18 +33,22 @@ func (rr *Regexp) Target(uri string) string {
 // RegexpCache caches compilation of regular expressions.
 // Except for modification of Size, it can be used concurrently.
 type RegexpCache struct {
+	// Size is the maximum size of the cache
 	Size int
 
-	m     sync.Mutex                // m protects cache
-	cache map[string]*regexp.Regexp // cache
+	m     sync.Mutex // m protects cache
+	cache map[string]*regexp.Regexp
 }
 
-// Compile returns a (possibly cached) compiled version of src
-// When
+// Compile returns a (possibly cached) compiled version of src.
+// When src is invalid it is never cached.
+//
+// See [regexp.Compile] for description of regular expressions.
 func (rr *RegexpCache) Compile(src string) (exp *regexp.Regexp, err error) {
 	rr.m.Lock()
 	defer rr.m.Unlock()
 
+	// set a default size
 	if rr.Size == 0 {
 		rr.Size = 1000
 	}
