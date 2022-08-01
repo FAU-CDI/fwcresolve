@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/tkw1536/wdresolve"
 	"github.com/tkw1536/wdresolve/resolvers"
@@ -24,8 +25,10 @@ func main() {
 		log.Printf("registering default domain %s\n", domainName)
 	}
 	if legacyDomainName != "" && domainName != "" {
-		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(legacyDomainName))] = fmt.Sprintf("https://$1.%s", domainName)
-		log.Printf("registering legacy domain %s\n", legacyDomainName)
+		for _, domain := range strings.Split(legacyDomainName, ",") {
+			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
+			log.Printf("registering legacy domain %s\n", domain)
+		}
 	}
 
 	if prefixFile != "" {
@@ -65,6 +68,6 @@ func init() {
 
 	flag.StringVar(&listenAddress, "listen", listenAddress, "Address to listen on")
 	flag.StringVar(&prefixFile, "prefix", prefixFile, "Prefix file to read")
-	flag.StringVar(&domainName, "domain", domainName, "Distillery domain to read")
-	flag.StringVar(&legacyDomainName, "legacy-domain", legacyDomainName, "Distillery legacy domain name to read")
+	flag.StringVar(&domainName, "domain", domainName, "Distillery domain name to use as a fallback")
+	flag.StringVar(&legacyDomainName, "legacy-domain", legacyDomainName, "Distillery legacy domain name(s) to read")
 }
