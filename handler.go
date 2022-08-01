@@ -44,9 +44,6 @@ func (ResolveHandler) URI(r *http.Request) string {
 	if r.Method != http.MethodGet {
 		return ""
 	}
-	if r.URL.Path != "/" {
-		return ""
-	}
 	return r.URL.Query().Get("uri")
 }
 
