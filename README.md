@@ -1,6 +1,6 @@
 # wdresolve
 
-This repository implements the resolver for the FAU WissKI Cloud.
+This repository implements the resolver for the [WissKI Distillery](https://github.com/FAU-CDI/wisski-distillery).
 Documentation tbd.
 
 
@@ -12,5 +12,5 @@ Available as a Docker Image on [GitHub Packages](https://github.com/FAU-CDI/wdre
 Automatically built on every commit.
 
 ```bash
- docker run -ti -p 8080:8080 ghcr.io/fau-cdi/wdresolve
+ docker run -ti -p 8080:8080 -e DEFAULT_DOMAIN=wisski.data.fau.de -e LEGACY_DOMAIN=wisski.agfd.fau.de -e PREFIX_FILE=/prefixes -v $(pwd)/cmd/wdresolve/prefixes.example:/prefixes:ro ghcr.io/fau-cdi/wdresolve
 ```
