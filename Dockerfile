@@ -11,8 +11,8 @@ RUN set -x ; \
 FROM docker.io/library/golang:1.18 as builder
 ADD . /app/
 WORKDIR /app/
-RUN go get ./cmd/fwcresolve
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o fwcresolve ./cmd/fwcresolve
+RUN go get ./cmd/wdresolve
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o wdresolve ./cmd/wdresolve
 
 # add it into a scratch image
 FROM docker.io/library/alpine:3.14
@@ -25,9 +25,9 @@ COPY --from=os /etc/group /etc/group
 COPY --from=os /etc/ssl/certs /etc/ssl/certs
 
 # add the app
-COPY --from=builder /app/fwcresolve /fwcresolve
+COPY --from=builder /app/wdresolve /wdresolve
 
 # and set the entry command
 EXPOSE 8080
 USER www-data:www-data
-CMD ["/fwcresolve", "-listen", "0.0.0.0:8080"]
+CMD ["/wdresolve", "-listen", "0.0.0.0:8080"]

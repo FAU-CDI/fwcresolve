@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/tkw1536/fwcresolve"
-	"github.com/tkw1536/fwcresolve/resolvers"
+	"github.com/tkw1536/wdresolve"
+	"github.com/tkw1536/wdresolve/resolvers"
 )
 
 func main() {
-	var p fwcresolve.ResolveHandler
+	var p wdresolve.ResolveHandler
 
 	fallback := &resolvers.Regexp{
 		Data: map[string]string{

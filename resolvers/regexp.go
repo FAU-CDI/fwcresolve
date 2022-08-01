@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// Regexp implements [fwcresolver.Resolver] on the basis of a regexp mapping.
+// Regexp implements [wdresolver.Resolver] on the basis of a regexp mapping.
 //
 // It should contain a map from regular expressions for URIs to target WissKI deployments.
 // Keys are encoded as regular expressions, Values may contain the $n$ syntax to replace matched groups.

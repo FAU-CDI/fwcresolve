@@ -1,4 +1,4 @@
-package fwcresolve
+package wdresolve
 
 import (
 	"fmt"

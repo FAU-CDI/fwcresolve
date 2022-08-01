@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Prefix implements [fwcresolver.Resolver] on the basis of a longest prefix match
+// Prefix implements [wdresolver.Resolver] on the basis of a longest prefix match
 type Prefix struct {
 	Data map[string]string
 }
