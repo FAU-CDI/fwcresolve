@@ -15,3 +15,17 @@ func (io InOrder) Target(uri string) string {
 	}
 	return ""
 }
+
+func (io InOrder) Prefixes() map[string]string {
+	result := make(map[string]string)
+	for _, r := range io {
+		pr, isPr := r.(wdresolve.PrefixResolver)
+		if !isPr {
+			continue
+		}
+		for key, value := range pr.Prefixes() {
+			result[key] = value
+		}
+	}
+	return result
+}
