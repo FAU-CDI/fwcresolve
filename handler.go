@@ -49,22 +49,24 @@ func (rh ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		final := rh.ResolverURL(target, uri)
 		http.Redirect(w, r, final, http.StatusFound)
 	case PrefixesAction:
-		// extract a set of prefixes
-		var prefixes map[string]string
-		if presolver, ok := rh.Resolver.(PrefixResolver); ok {
-			prefixes = presolver.Prefixes()
-		}
-		if prefixes == nil {
-			prefixes = make(map[string]string, 0)
-		}
-
-		// return them as json!
+		// return prefixes as json
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(prefixes)
+		json.NewEncoder(w).Encode(rh.prefixes())
 	default:
 		panic("never reached")
 	}
+}
+
+// prefixes computes the prefixes
+func (rh ResolveHandler) prefixes() (prefixes map[string]string) {
+	if presolver, ok := rh.Resolver.(PrefixResolver); ok {
+		prefixes = presolver.Prefixes()
+	}
+	if prefixes == nil {
+		prefixes = make(map[string]string, 0)
+	}
+	return
 }
 
 // Action extracts the action and uri to perform the action on
