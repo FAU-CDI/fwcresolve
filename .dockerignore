@@ -4,4 +4,4 @@
 !*.go
 !cmd
 !resolvers
-!index.html
+!index.html.tpl

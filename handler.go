@@ -2,9 +2,12 @@ package wdresolve
 
 import (
 	_ "embed"
-	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
+
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 // ResolveHandler implements [http.Handler] and resolves WissKI URIs to individual WissKI Resolve URIs.
@@ -12,17 +15,17 @@ type ResolveHandler struct {
 	Resolver Resolver
 }
 
-//go:embed index.html
-var indexHTML []byte
+//go:embed index.html.tpl
+var indexHTML string
+var indexTemplate = template.Must(template.New("index.html").Parse(indexHTML))
 
 // HandlerAction is an action the handler should perform
 type HandlerAction int
 
 const (
-	DefaultAction  HandlerAction = iota
-	IndexAction                  // Show the user an index page
-	ResolveAction                // resolve a URI
-	PrefixesAction               // list known prefixes
+	DefaultAction HandlerAction = iota
+	IndexAction                 // Show the user an index page
+	ResolveAction               // resolve a URI
 )
 
 // ServerHTTP implements the http.Handler interface
@@ -33,9 +36,12 @@ func (rh ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case DefaultAction:
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Not Found"))
+	// render index html
 	case IndexAction:
 		w.Header().Set("Content-Type", "text/html")
-		w.Write(indexHTML)
+		indexTemplate.Execute(w, struct{ Prefixes [][2]string }{
+			Prefixes: rh.prefixes(),
+		})
 	case ResolveAction:
 		// determine which wisski instance
 		target := rh.Resolver.Target(uri)
@@ -48,24 +54,30 @@ func (rh ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// append the resolver!
 		final := rh.ResolverURL(target, uri)
 		http.Redirect(w, r, final, http.StatusFound)
-	case PrefixesAction:
-		// return prefixes as json
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(rh.prefixes())
 	default:
 		panic("never reached")
 	}
 }
 
 // prefixes computes the prefixes
-func (rh ResolveHandler) prefixes() (prefixes map[string]string) {
+func (rh ResolveHandler) prefixes() (pfxary [][2]string) {
+
+	// determine the prefixes
+	var prefixes map[string]string
 	if presolver, ok := rh.Resolver.(PrefixResolver); ok {
 		prefixes = presolver.Prefixes()
 	}
-	if prefixes == nil {
-		prefixes = make(map[string]string, 0)
+
+	// get the prefix keys
+	keys := maps.Keys(prefixes)
+	slices.Sort(keys)
+
+	// make them an array (for clean iteration)
+	pfxary = make([][2]string, len(keys))
+	for i, k := range keys {
+		pfxary[i] = [2]string{k, prefixes[k]}
 	}
+
 	return
 }
 
@@ -85,10 +97,6 @@ func (ResolveHandler) Action(r *http.Request) (action HandlerAction, uri string)
 
 	if uri = query.Get("uri"); uri != "" {
 		return ResolveAction, uri
-	}
-
-	if query.Has("prefixes") {
-		return PrefixesAction, ""
 	}
 
 	// unknown
