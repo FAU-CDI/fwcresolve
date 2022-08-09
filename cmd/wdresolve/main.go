@@ -14,7 +14,9 @@ import (
 )
 
 func main() {
-	var p wdresolve.ResolveHandler
+	p := wdresolve.ResolveHandler{
+		TrustXForwardedProto: trustXForwardedProto,
+	}
 
 	fallback := &resolvers.Regexp{
 		Data: map[string]string{},
@@ -59,6 +61,7 @@ func main() {
 }
 
 var listenAddress string = "0.0.0.0:8080"
+var trustXForwardedProto bool = false
 var prefixFile string = os.Getenv("PREFIX_FILE")
 var domainName string = os.Getenv("DEFAULT_DOMAIN")
 var legacyDomainName string = os.Getenv("LEGACY_DOMAIN")
@@ -70,4 +73,5 @@ func init() {
 	flag.StringVar(&prefixFile, "prefix", prefixFile, "Prefix file to read")
 	flag.StringVar(&domainName, "domain", domainName, "Distillery domain name to use as a fallback")
 	flag.StringVar(&legacyDomainName, "legacy-domain", legacyDomainName, "Distillery legacy domain name(s) to read")
+	flag.BoolVar(&trustXForwardedProto, "trust-proxy", trustXForwardedProto, "Trust any X-Forwarded-Proto Header")
 }

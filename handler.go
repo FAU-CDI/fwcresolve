@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -12,7 +13,8 @@ import (
 
 // ResolveHandler implements [http.Handler] and resolves WissKI URIs to individual WissKI Resolve URIs.
 type ResolveHandler struct {
-	Resolver Resolver
+	Resolver             Resolver
+	TrustXForwardedProto bool
 }
 
 //go:embed index.html.tpl
@@ -39,8 +41,12 @@ func (rh ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// render index html
 	case IndexAction:
 		w.Header().Set("Content-Type", "text/html")
-		indexTemplate.Execute(w, struct{ Prefixes [][2]string }{
+		indexTemplate.Execute(w, struct {
+			Prefixes [][2]string
+			URL      string
+		}{
 			Prefixes: rh.prefixes(),
+			URL:      rh.url(r),
 		})
 	case ResolveAction:
 		// determine which wisski instance
@@ -57,6 +63,19 @@ func (rh ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	default:
 		panic("never reached")
 	}
+}
+
+func (rh ResolveHandler) url(r *http.Request) string {
+	proto := "http"
+	if r.TLS != nil {
+		proto = "https://"
+	}
+	if rh.TrustXForwardedProto {
+		if p := r.Header.Get("X-Forwarded-Proto"); p != "" {
+			proto = strings.ToLower(p)
+		}
+	}
+	return fmt.Sprintf("%s://%s%s", proto, r.Host, r.URL.Path)
 }
 
 // prefixes computes the prefixes
