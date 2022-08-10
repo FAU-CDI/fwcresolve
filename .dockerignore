@@ -3,5 +3,6 @@
 !go.sum
 !*.go
 !cmd
+!lib
 !resolvers
 !index.html.tpl
