@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github.com/tkw1536/wdresolve"
+	"github.com/FAU-CDI/wdresolve"
 )
 
 // InOrder implements [wdresolve.Resolver] and queries several child resolvers in order

@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/tkw1536/wdresolve"
-	"github.com/tkw1536/wdresolve/resolvers"
+	"github.com/FAU-CDI/wdresolve"
+	"github.com/FAU-CDI/wdresolve/resolvers"
 )
 
 func main() {

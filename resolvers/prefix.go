@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/tkw1536/wdresolve"
+	"github.com/FAU-CDI/wdresolve"
 )
 
 // Prefix implements [wdresolve.Resolver] on the basis of a longest prefix match
@@ -32,15 +32,14 @@ var ErrNoDestination = errors.New("encountered prefix without a destination")
 // Blank lines and those starting with "#" are ignored.
 // For example:
 //
-//    # I am ignored
+//	# I am ignored
 //
-//    https://wisski.example.com:
-//      http://wisski.example.com/
-//      https://wisski.example.com/
-//    https://wisski.other.com:
-//      http://wisski.other.com/
-//      https://wisski.other.com/
-//
+//	https://wisski.example.com:
+//	  http://wisski.example.com/
+//	  https://wisski.example.com/
+//	https://wisski.other.com:
+//	  http://wisski.other.com/
+//	  https://wisski.other.com/
 func ReadPrefixes(reader io.Reader) (p Prefix, err error) {
 	// read the file line by line
 	scanner := bufio.NewScanner(reader)

@@ -1,6 +1,6 @@
 package resolvers
 
-import "github.com/tkw1536/wdresolve/lib"
+import "github.com/FAU-CDI/wdresolve/lib"
 
 // Regexp implements [wdresolver.Resolver] on the basis of a regexp mapping.
 //
