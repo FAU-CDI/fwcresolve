@@ -15,11 +15,11 @@ import (
 type ResolveHandler struct {
 	Resolver             Resolver
 	TrustXForwardedProto bool
-}
 
-//go:embed index.html.tpl
-var indexHTML string
-var indexTemplate = template.Must(template.New("index.html").Parse(indexHTML))
+	// HandleIndex optionally handles the index page for a given router.
+	// When nil, renders the default index template.
+	HandleIndex func(context IndexContext, w http.ResponseWriter, r *http.Request)
+}
 
 // HandlerAction is an action the handler should perform
 type HandlerAction int
@@ -40,14 +40,10 @@ func (rh ResolveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Not Found"))
 	// render index html
 	case IndexAction:
-		w.Header().Set("Content-Type", "text/html")
-		indexTemplate.Execute(w, struct {
-			Prefixes [][2]string
-			URL      string
-		}{
+		rh.ServeIndex(IndexContext{
 			Prefixes: rh.prefixes(),
 			URL:      rh.url(r),
-		})
+		}, w, r)
 	case ResolveAction:
 		// determine which wisski instance
 		target := rh.Resolver.Target(uri)
@@ -124,4 +120,25 @@ func (ResolveHandler) Action(r *http.Request) (action HandlerAction, uri string)
 
 func (ResolveHandler) ResolverURL(target, uri string) string {
 	return fmt.Sprintf("%s/wisski/get?uri=%s", target, uri)
+}
+
+// ServeIndex responds to context with the index page
+func (rh ResolveHandler) ServeIndex(context IndexContext, w http.ResponseWriter, r *http.Request) {
+	if rh.HandleIndex == nil {
+		w.Header().Set("Content-Type", "text/html")
+		indexTemplate.Execute(w, context)
+		return
+	}
+
+	rh.HandleIndex(context, w, r)
+}
+
+//go:embed index.html.tpl
+var indexHTML string
+var indexTemplate = template.Must(template.New("index.html").Parse(indexHTML))
+
+// ResolverHandlerContext is the context for the resolver handler
+type IndexContext struct {
+	Prefixes [][2]string
+	URL      string
 }
